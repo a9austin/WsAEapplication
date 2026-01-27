@@ -12,7 +12,7 @@ export default function ProgressIndicator({ currentStep, totalSteps = 2 }) {
               className={`
                 flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-all
                 ${isCompleted ? 'bg-green-500 text-white' : ''}
-                ${isActive ? 'bg-blue-600 text-white ring-4 ring-blue-600/30' : ''}
+                ${isActive ? 'bg-indigo-600 text-white ring-4 ring-indigo-600/30' : ''}
                 ${!isActive && !isCompleted ? 'bg-slate-200 text-slate-500' : ''}
               `}
             >

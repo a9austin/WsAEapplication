@@ -57,7 +57,7 @@ export default function ConfirmationPage() {
   // Share on LinkedIn
   const handleLinkedInShare = () => {
     const text = encodeURIComponent(
-      "Just completed The QSR Sales Challenge! They're hiring scrappy AEs - are you up for it?"
+      "Just completed The QSR Sales Challenge by Workstream! They're hiring scrappy AEs - are you up for it?"
     );
     const url = encodeURIComponent(window.location.origin);
     window.open(
@@ -68,7 +68,7 @@ export default function ConfirmationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-indigo-950 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Success header */}
         <div className="text-center mb-8">

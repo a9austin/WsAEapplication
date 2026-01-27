@@ -104,23 +104,21 @@ export default function AdminPage() {
       <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
           <div className="text-center mb-6">
-            <div className="w-14 h-14 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4">
               <svg
-                className="w-7 h-7 text-white"
+                className="w-8 h-8 text-white"
+                viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-slate-800">Admin Panel</h1>
-            <p className="text-slate-500 mt-1">Enter password to continue</p>
+            <h1 className="text-2xl font-bold text-slate-800">Workstream Admin</h1>
+            <p className="text-slate-500 mt-1">QSR Sales Challenge</p>
           </div>
 
           <form onSubmit={handleLogin}>
@@ -133,7 +131,7 @@ export default function AdminPage() {
                 className={`w-full px-4 py-3 rounded-xl border-2 focus:outline-none focus:ring-0 transition-colors ${
                   passwordError
                     ? 'border-red-300 bg-red-50 focus:border-red-500'
-                    : 'border-slate-200 focus:border-blue-500'
+                    : 'border-slate-200 focus:border-indigo-500'
                 }`}
               />
               {passwordError && (
@@ -143,7 +141,7 @@ export default function AdminPage() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-colors"
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors"
             >
               Login
             </button>
@@ -161,27 +159,25 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
                 <svg
-                  className="w-5 h-5 text-white"
+                  className="w-6 h-6 text-white"
+                  viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-slate-800">
-                  QSR Challenge Admin
+                  Workstream Admin
                 </h1>
                 <p className="text-sm text-slate-500">
-                  Review candidate submissions
+                  QSR Sales Challenge Submissions
                 </p>
               </div>
             </div>

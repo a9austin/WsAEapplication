@@ -7,10 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          primary: '#2563eb',
-          secondary: '#1e40af',
-          accent: '#3b82f6',
+        // Workstream brand colors
+        workstream: {
+          purple: '#6366f1',      // Primary purple
+          'purple-dark': '#4f46e5', // Darker purple for hover
+          'purple-light': '#818cf8', // Lighter purple
+          indigo: '#4338ca',      // Deep indigo
+          navy: '#1e1b4b',        // Dark navy for backgrounds
         }
       }
     },
