@@ -66,9 +66,13 @@ export async function deleteCandidate(candidateId) {
 
 // Export candidates to CSV format
 export function exportToCSV(candidates) {
-  const headers = ['Candidate ID', 'Timestamp', 'Scenario Choice', 'Archetype', 'Video Filename'];
+  const headers = ['Candidate ID', 'Name', 'Email', 'LinkedIn', 'Phone', 'Timestamp', 'Scenario Choice', 'Archetype', 'Video Filename'];
   const rows = candidates.map(c => [
     c.candidateId,
+    c.name,
+    c.email,
+    c.linkedin,
+    c.phone,
     c.timestamp,
     c.scenarioChoice,
     c.archetype,
@@ -101,6 +105,10 @@ export async function initMockData() {
     const mockCandidates = [
       {
         candidateId: '1706300000000-abc123',
+        name: 'Sarah Johnson',
+        email: 'sarah.johnson@email.com',
+        linkedin: 'https://linkedin.com/in/sarahjohnson',
+        phone: '+1 (555) 123-4567',
         scenarioChoice: 'B',
         archetype: archetypes['B'].name,
         timestamp: '2025-01-26T10:30:00Z',
@@ -109,6 +117,10 @@ export async function initMockData() {
       },
       {
         candidateId: '1706290000000-def456',
+        name: 'Michael Chen',
+        email: 'mchen@gmail.com',
+        linkedin: 'https://linkedin.com/in/michaelchen',
+        phone: null,
         scenarioChoice: 'A',
         archetype: archetypes['A'].name,
         timestamp: '2025-01-25T14:15:00Z',
@@ -117,6 +129,10 @@ export async function initMockData() {
       },
       {
         candidateId: '1706280000000-ghi789',
+        name: 'Emily Rodriguez',
+        email: 'emily.r@company.com',
+        linkedin: 'https://linkedin.com/in/emilyrodriguez',
+        phone: '+1 (555) 987-6543',
         scenarioChoice: 'D',
         archetype: archetypes['D'].name,
         timestamp: '2025-01-24T09:45:00Z',
@@ -125,6 +141,10 @@ export async function initMockData() {
       },
       {
         candidateId: '1706270000000-jkl012',
+        name: 'David Kim',
+        email: 'dkim@outlook.com',
+        linkedin: 'https://linkedin.com/in/davidkim',
+        phone: '+1 (555) 456-7890',
         scenarioChoice: 'C',
         archetype: archetypes['C'].name,
         timestamp: '2025-01-23T16:20:00Z',
@@ -133,6 +153,10 @@ export async function initMockData() {
       },
       {
         candidateId: '1706260000000-mno345',
+        name: 'Amanda Foster',
+        email: 'amanda.foster@sales.io',
+        linkedin: 'https://linkedin.com/in/amandafoster',
+        phone: null,
         scenarioChoice: 'E',
         archetype: archetypes['E'].name,
         timestamp: '2025-01-22T11:00:00Z',

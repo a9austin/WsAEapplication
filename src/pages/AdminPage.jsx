@@ -276,16 +276,16 @@ export default function AdminPage() {
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Candidate ID
+                      Candidate
+                    </th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Contact
                     </th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Timestamp
                     </th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Archetype
-                    </th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Choice
                     </th>
                     <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Actions
@@ -304,27 +304,63 @@ export default function AdminPage() {
                     return (
                       <tr key={candidate.candidateId} className="hover:bg-slate-50">
                         <td className="px-6 py-4">
-                          <code className="text-sm text-slate-600 bg-slate-100 px-2 py-1 rounded">
-                            {candidate.candidateId}
-                          </code>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-slate-800">
+                              {candidate.name || 'Unknown'}
+                            </span>
+                            <code className="text-xs text-slate-400 mt-0.5">
+                              {candidate.candidateId}
+                            </code>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1 text-sm">
+                            <a
+                              href={`mailto:${candidate.email}`}
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              {candidate.email || '-'}
+                            </a>
+                            {candidate.linkedin && (
+                              <a
+                                href={candidate.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                                </svg>
+                                LinkedIn
+                              </a>
+                            )}
+                            {candidate.phone && (
+                              <a
+                                href={`tel:${candidate.phone}`}
+                                className="text-slate-600 hover:text-slate-800"
+                              >
+                                {candidate.phone}
+                              </a>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-600">
                           {formatDate(candidate.timestamp)}
                         </td>
                         <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
-                              archetypeData?.bgColor || 'bg-slate-100'
-                            } ${archetypeData?.textColor || 'text-slate-700'}`}
-                          >
-                            <span>{archetypeData?.icon || '🏆'}</span>
-                            {candidate.archetype}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center justify-center w-7 h-7 bg-slate-200 text-slate-700 font-semibold rounded-full text-sm">
-                            {candidate.scenarioChoice}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
+                                archetypeData?.bgColor || 'bg-slate-100'
+                              } ${archetypeData?.textColor || 'text-slate-700'}`}
+                            >
+                              <span>{archetypeData?.icon || '🏆'}</span>
+                              {candidate.archetype}
+                            </span>
+                            <span className="text-xs text-slate-400 ml-1">
+                              Choice: {candidate.scenarioChoice}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">

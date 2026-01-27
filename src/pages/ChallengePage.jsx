@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProgressIndicator from '../components/ProgressIndicator';
 import VideoRecorder from '../components/VideoRecorder';
+import CandidateInfoForm from '../components/CandidateInfoForm';
 import ScenarioQuestion from '../components/ScenarioQuestion';
 import { saveCandidate, generateCandidateId } from '../utils/db';
 
@@ -9,11 +10,17 @@ export default function ChallengePage() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [videoBlob, setVideoBlob] = useState(null);
+  const [candidateInfo, setCandidateInfo] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleVideoComplete = (blob) => {
     setVideoBlob(blob);
     setCurrentStep(2);
+  };
+
+  const handleCandidateInfoComplete = (info) => {
+    setCandidateInfo(info);
+    setCurrentStep(3);
   };
 
   const handleScenarioComplete = async ({ choice, archetype, archetypeDescription }) => {
@@ -26,6 +33,10 @@ export default function ChallengePage() {
       const candidateData = {
         candidateId,
         videoBlob,
+        name: candidateInfo.name,
+        email: candidateInfo.email,
+        linkedin: candidateInfo.linkedin,
+        phone: candidateInfo.phone,
         scenarioChoice: choice,
         archetype,
         timestamp,
@@ -41,6 +52,7 @@ export default function ChallengePage() {
           archetypeDescription,
           choice,
           candidateId,
+          candidateName: candidateInfo.name,
         },
       });
     } catch (error) {
@@ -67,7 +79,7 @@ export default function ChallengePage() {
           <h1 className="text-2xl font-bold text-slate-800 mb-2">
             The QSR Sales Challenge
           </h1>
-          <ProgressIndicator currentStep={currentStep} totalSteps={2} />
+          <ProgressIndicator currentStep={currentStep} totalSteps={3} />
         </div>
 
         {/* Step content */}
@@ -84,7 +96,16 @@ export default function ChallengePage() {
           {currentStep === 2 && (
             <>
               <h2 className="text-xl font-bold text-slate-800 mb-6 text-center">
-                Part 2: The Sales Scenario
+                Part 2: Your Info
+              </h2>
+              <CandidateInfoForm onComplete={handleCandidateInfoComplete} />
+            </>
+          )}
+
+          {currentStep === 3 && (
+            <>
+              <h2 className="text-xl font-bold text-slate-800 mb-6 text-center">
+                Part 3: The Sales Scenario
               </h2>
               <ScenarioQuestion onComplete={handleScenarioComplete} />
             </>
