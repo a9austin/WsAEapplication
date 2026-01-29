@@ -1,10 +1,12 @@
 import { openDB } from 'idb';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 
 const DB_NAME = 'qsr-challenge-db';
 const DB_VERSION = 1;
 const CANDIDATES_STORE = 'candidates';
 
-// Initialize the database
+// ── IndexedDB (local fallback) ──────────────────────────────────────────────
+
 async function initDB() {
   return openDB(DB_NAME, DB_VERSION, {
     upgrade(db) {
@@ -17,6 +19,8 @@ async function initDB() {
   });
 }
 
+// ── Public API ──────────────────────────────────────────────────────────────
+
 // Generate a unique candidate ID
 export function generateCandidateId() {
   const timestamp = Date.now();
@@ -24,49 +28,48 @@ export function generateCandidateId() {
   return `${timestamp}-${randomStr}`;
 }
 
-// Save candidate submission
+// Save candidate submission (Supabase if configured, else IndexedDB)
 export async function saveCandidate(candidateData) {
+  if (isSupabaseConfigured()) {
+    return saveCandidateToSupabase(candidateData);
+  }
+  // Fallback: local IndexedDB
   const db = await initDB();
-
-  // TODO: Upload to S3/Cloudinary - await uploadVideo(candidateData.videoBlob, candidateData.candidateId)
-  // For demo purposes, we store the video blob in IndexedDB
-
   await db.put(CANDIDATES_STORE, candidateData);
   return candidateData;
 }
 
 // Get all candidates
 export async function getAllCandidates() {
+  if (isSupabaseConfigured()) {
+    return getAllCandidatesFromSupabase();
+  }
   const db = await initDB();
   const candidates = await db.getAll(CANDIDATES_STORE);
-  // Sort by timestamp, newest first
   return candidates.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 }
 
 // Get candidate by ID
 export async function getCandidateById(candidateId) {
+  if (isSupabaseConfigured()) {
+    return getCandidateByIdFromSupabase(candidateId);
+  }
   const db = await initDB();
   return db.get(CANDIDATES_STORE, candidateId);
 }
 
-// Get candidates filtered by archetype
-export async function getCandidatesByArchetype(archetype) {
-  const db = await initDB();
-  const allCandidates = await db.getAll(CANDIDATES_STORE);
-  return allCandidates
-    .filter(c => c.archetype === archetype)
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-}
-
-// Delete candidate (for admin purposes)
+// Delete candidate
 export async function deleteCandidate(candidateId) {
+  if (isSupabaseConfigured()) {
+    return deleteCandidateFromSupabase(candidateId);
+  }
   const db = await initDB();
   await db.delete(CANDIDATES_STORE, candidateId);
 }
 
 // Export candidates to CSV format
 export function exportToCSV(candidates) {
-  const headers = ['Candidate ID', 'Name', 'Email', 'LinkedIn', 'Phone', 'Timestamp', 'Scenario Choice', 'Archetype', 'Video Filename'];
+  const headers = ['Candidate ID', 'Name', 'Email', 'LinkedIn', 'Phone', 'Timestamp', 'Scenario Choice', 'Archetype', 'Video URL'];
   const rows = candidates.map(c => [
     c.candidateId,
     c.name,
@@ -76,7 +79,7 @@ export function exportToCSV(candidates) {
     c.timestamp,
     c.scenarioChoice,
     c.archetype,
-    c.videoFileName
+    c.videoUrl || c.videoFileName || '',
   ]);
 
   const csvContent = [
@@ -87,12 +90,129 @@ export function exportToCSV(candidates) {
   return csvContent;
 }
 
-// Initialize with mock data for testing
+// ── Supabase implementation ─────────────────────────────────────────────────
+
+async function uploadVideoToSupabase(blob, candidateId) {
+  const fileName = `${candidateId}.webm`;
+
+  const { data, error } = await supabase.storage
+    .from('videos')
+    .upload(fileName, blob, {
+      contentType: 'video/webm',
+      upsert: true,
+    });
+
+  if (error) throw error;
+
+  // Get public URL for the video
+  const { data: urlData } = supabase.storage
+    .from('videos')
+    .getPublicUrl(fileName);
+
+  return urlData.publicUrl;
+}
+
+async function saveCandidateToSupabase(candidateData) {
+  let videoUrl = null;
+
+  // Upload video blob to Supabase Storage
+  if (candidateData.videoBlob) {
+    videoUrl = await uploadVideoToSupabase(
+      candidateData.videoBlob,
+      candidateData.candidateId
+    );
+  }
+
+  // Save candidate record to Supabase table
+  const record = {
+    candidate_id: candidateData.candidateId,
+    name: candidateData.name || null,
+    email: candidateData.email || null,
+    linkedin: candidateData.linkedin || null,
+    phone: candidateData.phone || null,
+    scenario_choice: candidateData.scenarioChoice,
+    archetype: candidateData.archetype,
+    video_url: videoUrl,
+    video_file_name: candidateData.videoFileName,
+  };
+
+  const { data, error } = await supabase
+    .from('candidates')
+    .insert(record)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return { ...candidateData, videoUrl };
+}
+
+async function getAllCandidatesFromSupabase() {
+  const { data, error } = await supabase
+    .from('candidates')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  // Map Supabase columns back to our app's field names
+  return (data || []).map(mapSupabaseRecord);
+}
+
+async function getCandidateByIdFromSupabase(candidateId) {
+  const { data, error } = await supabase
+    .from('candidates')
+    .select('*')
+    .eq('candidate_id', candidateId)
+    .single();
+
+  if (error) throw error;
+
+  return mapSupabaseRecord(data);
+}
+
+async function deleteCandidateFromSupabase(candidateId) {
+  // Delete video from storage
+  await supabase.storage
+    .from('videos')
+    .remove([`${candidateId}.webm`]);
+
+  // Delete database record
+  const { error } = await supabase
+    .from('candidates')
+    .delete()
+    .eq('candidate_id', candidateId);
+
+  if (error) throw error;
+}
+
+// Map Supabase snake_case → app camelCase
+function mapSupabaseRecord(record) {
+  return {
+    candidateId: record.candidate_id,
+    name: record.name,
+    email: record.email,
+    linkedin: record.linkedin,
+    phone: record.phone,
+    scenarioChoice: record.scenario_choice,
+    archetype: record.archetype,
+    videoUrl: record.video_url,
+    videoFileName: record.video_file_name,
+    timestamp: record.created_at,
+    // No videoBlob when using Supabase — we use videoUrl instead
+    videoBlob: null,
+  };
+}
+
+// ── Mock data (IndexedDB only) ──────────────────────────────────────────────
+
 export async function initMockData() {
+  // Skip mock data when Supabase is configured — real data lives there
+  if (isSupabaseConfigured()) return false;
+
   const db = await initDB();
   const existingCandidates = await db.getAll(CANDIDATES_STORE);
 
-  // Only add mock data if database is empty
   if (existingCandidates.length === 0) {
     const archetypes = {
       'A': { name: 'The Closer', description: 'You prioritize getting the deal done' },
@@ -113,7 +233,7 @@ export async function initMockData() {
         archetype: archetypes['B'].name,
         timestamp: '2025-01-26T10:30:00Z',
         videoFileName: 'candidate-1706300000000-abc123.webm',
-        videoBlob: null, // No actual video for mock data
+        videoBlob: null,
       },
       {
         candidateId: '1706290000000-def456',

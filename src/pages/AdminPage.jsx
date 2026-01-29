@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
   getAllCandidates,
-  getCandidatesByArchetype,
   exportToCSV,
   initMockData,
 } from '../utils/db';
@@ -73,18 +72,25 @@ export default function AdminPage() {
     link.click();
   };
 
+  // Check if a candidate has a playable video (blob or URL)
+  const hasVideo = (candidate) => {
+    return !!(candidate.videoBlob || candidate.videoUrl);
+  };
+
   // Download video
   const handleDownloadVideo = (candidate) => {
-    if (!candidate.videoBlob) {
+    if (candidate.videoBlob) {
+      const url = URL.createObjectURL(candidate.videoBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = candidate.videoFileName;
+      link.click();
+      URL.revokeObjectURL(url);
+    } else if (candidate.videoUrl) {
+      window.open(candidate.videoUrl, '_blank');
+    } else {
       alert('No video available for this candidate.');
-      return;
     }
-    const url = URL.createObjectURL(candidate.videoBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = candidate.videoFileName;
-    link.click();
-    URL.revokeObjectURL(url);
   };
 
   // Format date
@@ -368,10 +374,10 @@ export default function AdminPage() {
                                     : candidate.candidateId
                                 )
                               }
-                              disabled={!candidate.videoBlob}
+                              disabled={!hasVideo(candidate)}
                               className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                                candidate.videoBlob
-                                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                hasVideo(candidate)
+                                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
                                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                               }`}
                             >
@@ -400,9 +406,9 @@ export default function AdminPage() {
                             </button>
                             <button
                               onClick={() => handleDownloadVideo(candidate)}
-                              disabled={!candidate.videoBlob}
+                              disabled={!hasVideo(candidate)}
                               className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                                candidate.videoBlob
+                                hasVideo(candidate)
                                   ? 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                               }`}
@@ -449,19 +455,21 @@ export default function AdminPage() {
   );
 }
 
-// Video player component
+// Video player component — supports both blob and URL sources
 function VideoPlayer({ candidate, onClose }) {
-  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoSrc, setVideoSrc] = useState(null);
 
   useEffect(() => {
     if (candidate?.videoBlob) {
       const url = URL.createObjectURL(candidate.videoBlob);
-      setVideoUrl(url);
+      setVideoSrc(url);
       return () => URL.revokeObjectURL(url);
+    } else if (candidate?.videoUrl) {
+      setVideoSrc(candidate.videoUrl);
     }
   }, [candidate]);
 
-  if (!candidate?.videoBlob) {
+  if (!candidate?.videoBlob && !candidate?.videoUrl) {
     return (
       <div className="text-center py-8">
         <p className="text-slate-500">No video available for this candidate.</p>
@@ -476,7 +484,7 @@ function VideoPlayer({ candidate, onClose }) {
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-slate-800">
-          Video: {candidate.candidateId}
+          Video: {candidate.name || candidate.candidateId}
         </h3>
         <button
           onClick={onClose}
@@ -499,7 +507,7 @@ function VideoPlayer({ candidate, onClose }) {
       </div>
       <div className="bg-black rounded-xl overflow-hidden">
         <video
-          src={videoUrl}
+          src={videoSrc}
           controls
           autoPlay
           className="w-full aspect-video"

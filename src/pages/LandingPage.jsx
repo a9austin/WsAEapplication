@@ -11,7 +11,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-indigo-950 flex flex-col items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
         {/* Workstream Logo */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="inline-flex items-center gap-3">
             <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
               <svg
@@ -30,16 +30,33 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* Hiring banner */}
+        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2 mb-8">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+          </span>
+          <span className="text-sm text-indigo-100 font-medium">
+            We're hiring Account Executives & SDRs
+          </span>
+        </div>
+
         {/* Headline */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
           The QSR Sales Challenge
         </h1>
 
         {/* Subheading */}
-        <p className="text-xl md:text-2xl text-indigo-200 mb-12 leading-relaxed">
+        <p className="text-xl md:text-2xl text-indigo-200 mb-4 leading-relaxed">
           Record your pitch. Make your move.
           <br />
           <span className="text-white font-semibold">Show us what you've got.</span>
+        </p>
+
+        {/* Role description */}
+        <p className="text-base text-indigo-300 mb-12 max-w-lg mx-auto">
+          Workstream is looking for scrappy, hungry salespeople to join our team.
+          Complete this challenge to apply for an AE or SDR role.
         </p>
 
         {/* Start Button */}
